@@ -8,5 +8,10 @@ namespace ST10441211_PROG6212_POE.Controllers
         {
             return View();
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }

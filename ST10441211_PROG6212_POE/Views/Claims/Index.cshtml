@@ -1,5 +1,42 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Claims";
 }
+
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Claims</h1>
+        <p class="lead">Submit and manage your insurance claims here.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">New Claim</h5>
+                    <p class="card-text text-black">Submit a new insurance claim with supporting documents.</p>
+                    <a href="/Claims/Create" class="btn btn-purple">Create Claim</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">View Claims</h5>
+                    <p class="card-text text-black">Track and manage your previously submitted claims.</p>
+                    <a href="/Claims/List" class="btn btn-purple">View Claims</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Support</h5>
+                    <p class="card-text text-black">Need help? Contact support for claim-related queries.</p>
+                    <a href="/Claims/Support" class="btn btn-purple">Get Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

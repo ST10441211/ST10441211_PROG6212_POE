@@ -1,5 +1,24 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Create Claim";
 }
+
+<h2>Create a New Claim</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="claimTitle">Claim Title</label>
+        <input type="text" class="form-control" id="claimTitle" placeholder="Enter claim title" />
+    </div>
+
+    <div class="form-group">
+        <label for="claimDescription">Description</label>
+        <textarea class="form-control" id="claimDescription" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="supportingDoc">Supporting Document</label>
+        <input type="file" class="form-control" id="supportingDoc" />
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Submit Claim</button>
+</form>

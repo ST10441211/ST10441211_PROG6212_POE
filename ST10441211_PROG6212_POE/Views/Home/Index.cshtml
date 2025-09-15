@@ -1,5 +1,116 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Home";
 }
+
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+        background-color: #4b0082;
+    }
+
+    .navbar .nav-link {
+        color: #fff !important;
+        margin-right: 1rem;
+        transition: color 0.3s;
+    }
+
+    .navbar .nav-link:hover {
+        color: #d8b4f8 !important;
+    }
+
+    /* Jumbotron */
+    .jumbotron {
+        background: linear-gradient(135deg, #6a0dad, #4b0082);
+        border-radius: 25px;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .jumbotron h1 {
+        font-weight: 700;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    }
+
+    /* Cards */
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+    }
+
+    .btn-purple {
+        background-color: #6a0dad;
+        border-color: #6a0dad;
+        color: #fff;
+    }
+
+    .btn-purple:hover {
+        background-color: #7b1fa2;
+        border-color: #7b1fa2;
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Claims">Claims</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome!</h1>
+        <p class="lead">ST10441211 - Insurance Claims Portal</p>
+        <hr class="my-4">
+        <p>Please choose an option below to continue.</p>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Login</h5>
+                    <p class="card-text text-black">Access your account and manage your insurance claims.</p>
+                    <a href="/Login" class="btn btn-purple">Go to Login</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Claims</h5>
+                    <p class="card-text text-black">Submit, track, and manage your claims.</p>
+                    <a href="/Claims" class="btn btn-purple">Go to Claims</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
