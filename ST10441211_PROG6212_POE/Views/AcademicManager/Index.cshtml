@@ -1,5 +1,45 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<ST10441211_PROG6212_POE.Models.ClaimModel>
 @{
+    ViewData["Title"] = "Academic Manager - Review Claims";
 }
+
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Review Claims</h1>
+        <p class="lead">As an Academic Manager, you can approve or reject submitted claims.</p>
+    </div>
+
+    <table class="table table-hover table-bordered bg-white text-dark">
+        <thead class="table-dark">
+            <tr>
+                <th>Claim ID</th>
+                <th>Lecturer</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in Model)
+            {
+                <tr>
+                    <td>@claim.ClaimId</td>
+                    <td>@claim.LecturerId</td>
+                    <td>@claim.ClaimType</td>
+                    <td>@claim.ClaimDate.ToShortDateString()</td>
+                    <td>
+                        <span class="badge bg-@(claim.Status == "Pending" ? "warning" : (claim.Status == "Approved" ? "success" : "danger"))">
+                            @claim.Status
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-action="Approve" asp-route-id="@claim.ClaimId" class="btn btn-success btn-sm">Approve</a>
+                        <a asp-action="Reject" asp-route-id="@claim.ClaimId" class="btn btn-danger btn-sm">Reject</a>
+                        <a asp-action="Details" asp-route-id="@claim.ClaimId" class="btn btn-info btn-sm">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

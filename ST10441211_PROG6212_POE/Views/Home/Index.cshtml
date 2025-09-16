@@ -14,15 +14,15 @@
         background-color: #4b0082;
     }
 
-    .navbar .nav-link {
-        color: #fff !important;
-        margin-right: 1rem;
-        transition: color 0.3s;
-    }
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
 
-    .navbar .nav-link:hover {
-        color: #d8b4f8 !important;
-    }
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
 
     /* Jumbotron */
     .jumbotron {
@@ -34,10 +34,10 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
-    .jumbotron h1 {
-        font-weight: 700;
-        text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-    }
+        .jumbotron h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
 
     /* Cards */
     .card {
@@ -46,10 +46,10 @@
         transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0,0,0,0.5);
-    }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+        }
 
     .btn-purple {
         background-color: #6a0dad;
@@ -57,10 +57,10 @@
         color: #fff;
     }
 
-    .btn-purple:hover {
-        background-color: #7b1fa2;
-        border-color: #7b1fa2;
-    }
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
 </style>
 
 <!-- Navbar -->
@@ -77,6 +77,12 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/Claims">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
                 </li>
             </ul>
         </div>
@@ -109,6 +115,28 @@
                     <h5 class="card-title text-dark">Claims</h5>
                     <p class="card-text text-black">Submit, track, and manage your claims.</p>
                     <a href="/Claims" class="btn btn-purple">Go to Claims</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Manager Card -->
+        <div class="col-md-6">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Academic Manager</h5>
+                    <p class="card-text text-black">Review and approve lecturer claims.</p>
+                    <a href="/AcademicManager" class="btn btn-purple">Go to Academic Manager</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programme Coordinator Card -->
+        <div class="col-md-6">
+            <div class="card text-center h-100 border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Programme Coordinator</h5>
+                    <p class="card-text text-black">Oversee and verify submitted claims.</p>
+                    <a href="/ProgrammeCoordinator" class="btn btn-purple">Go to Programme Coordinator</a>
                 </div>
             </div>
         </div>
