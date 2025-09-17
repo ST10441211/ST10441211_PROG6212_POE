@@ -2,6 +2,116 @@
     ViewData["Title"] = "Login";
 }
 
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+        background-color: #4b0082;
+    }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
+
+    /* Jumbotron */
+    .jumbotron {
+        background: linear-gradient(135deg, #6a0dad, #4b0082);
+        border-radius: 25px;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+        .jumbotron h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+
+    /* Card */
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        transition: transform 0.3s, box-shadow 0.3s;
+        background-color: #1a1a1a;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+        }
+
+    /* Inputs */
+    .form-label {
+        color: #d8b4f8;
+        font-weight: 500;
+    }
+
+    .form-control {
+        background-color: #2a2a2a;
+        color: #fff;
+        border: 1px solid #4b0082;
+    }
+
+        .form-control:focus {
+            background-color: #333;
+            color: #fff;
+            border-color: #6a0dad;
+            box-shadow: 0 0 8px rgba(106, 13, 173, 0.7);
+        }
+
+    /* Button */
+    .btn-purple {
+        background-color: #6a0dad;
+        border-color: #6a0dad;
+        color: #fff;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Claims">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
 <div class="container mt-4">
     <div class="jumbotron">
         <h1 class="display-4">Login</h1>
@@ -14,11 +124,11 @@
                 <div class="card-body">
                     <form method="post" action="/Login/Authenticate">
                         <div class="mb-3">
-                            <label for="email" class="form-label text-dark">Email</label>
+                            <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required />
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label text-dark">Password</label>
+                            <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required />
                         </div>
                         <button type="submit" class="btn btn-purple w-100">Login</button>
