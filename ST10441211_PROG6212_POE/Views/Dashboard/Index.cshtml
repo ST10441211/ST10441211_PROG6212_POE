@@ -1,0 +1,97 @@
+﻿@model ST10441211_PROG6212_POE.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center text-info">Dashboard - Welcome, @Model.CurrentUserName</h2>
+    <p class="text-muted text-center">Role: @Model.Role</p>
+
+    <hr />
+
+    <!-- My Claims -->
+    <h4 class="text-warning">My Claims</h4>
+    @if (Model.MyClaims == null || !Model.MyClaims.Any())
+    {
+        <p>No claims submitted yet.</p>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model.MyClaims)
+                {
+                    var statusColor = claim.Status.ToLower() switch
+                    {
+                        "approved" => "text-success",
+                        "rejected" => "text-danger",
+                        "pending" => "text-warning",
+                        _ => "text-secondary"
+                    };
+                    <tr>
+                        <td>@claim.ClaimId</td>
+                        <td>@claim.ClaimType</td>
+                        <td>@claim.Description</td>
+                        <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                        <td class="@statusColor fw-bold">@claim.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <!-- All Claims (Admin/Reviewer) -->
+    @if (Model.AllClaims != null && Model.Role.ToString() != "Lecturer")
+    {
+        <hr />
+        <h4 class="text-warning">All Claims (Requires Review)</h4>
+
+        @if (!Model.AllClaims.Any())
+        {
+            <p>No claims to review.</p>
+        }
+        else
+        {
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model.AllClaims)
+                    {
+                        var statusColor = claim.Status.ToLower() switch
+                        {
+                            "approved" => "text-success",
+                            "rejected" => "text-danger",
+                            "pending" => "text-warning",
+                            _ => "text-secondary"
+                        };
+                        <tr>
+                            <td>@claim.ClaimId</td>
+                            <td>@claim.ClaimType</td>
+                            <td>@claim.Description</td>
+                            <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                            <td class="@statusColor fw-bold">@claim.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
