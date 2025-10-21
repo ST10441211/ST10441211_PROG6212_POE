@@ -2,27 +2,16 @@
 
 namespace ST10441211_PROG6212_POE.Models
 {
-    public enum Role
+    public class RegisterViewModel
     {
-        Lecturer,
-        ProgrammeCoordinator,
-        AcademicManager
-    }
-
-    public class UserModel
-    {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         public string FullName { get; set; } = string.Empty;
 
-        [Required]
-        [EmailAddress]
+        [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        [Required, DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
 
         [Required]
         public Role Role { get; set; } = Role.Lecturer;

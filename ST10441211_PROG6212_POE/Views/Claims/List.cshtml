@@ -1,0 +1,143 @@
+﻿@model IEnumerable<ST10441211_PROG6212_POE.Models.ClaimModel>
+
+@{
+    ViewData["Title"] = "Claims List";
+}
+
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+        background-color: #4b0082;
+    }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
+
+    .table-dark {
+        background-color: #1a1a1a;
+    }
+
+    .badge-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .badge-approved {
+        background-color: #28a745;
+    }
+
+    .badge-rejected {
+        background-color: #dc3545;
+    }
+
+    .btn-purple {
+        background-color: #6a0dad;
+        border-color: #6a0dad;
+        color: #fff;
+    }
+
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Claims">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Claims List</h2>
+        <a href="/Claims/Create" class="btn btn-purple">Create New Claim</a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-dark table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Claim Type</th>
+                    <th>Description</th>
+                    <th>Claim Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model)
+                {
+                    <tr>
+                        <td>@claim.ClaimId</td>
+                        <td>@claim.ClaimType</td>
+                        <td>@claim.Description</td>
+                        <td>@claim.ClaimDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            @if (claim.Status == "Pending")
+                            {
+                                <span class="badge badge-pending">Pending</span>
+                            }
+                            else if (claim.Status == "Approved")
+                            {
+                                <span class="badge badge-approved">Approved</span>
+                            }
+                            else if (claim.Status == "Rejected")
+                            {
+                                <span class="badge badge-rejected">Rejected</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@claim.Status</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="/Claims/Details/@claim.ClaimId" class="btn btn-sm btn-info">Details</a>
+                            <a href="/Claims/Edit/@claim.ClaimId" class="btn btn-sm btn-warning">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>No claims found. <a href="/Claims/Create">Create your first claim</a>.</p>
+        </div>
+    }
+</div>

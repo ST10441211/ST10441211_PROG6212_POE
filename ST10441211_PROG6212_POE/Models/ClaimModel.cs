@@ -1,28 +1,34 @@
-﻿namespace ST10441211_PROG6212_POE.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ST10441211_PROG6212_POE.Models
 {
     public class ClaimModel
     {
-        public int ClaimId { get; set; }
+        [Key]
+        public int ClaimId { get; set; } // Changed from Id to ClaimId
 
-        // FK to Lecturer
+        [Required]
         public int LecturerId { get; set; }
 
-        // What type of claim (Travel, Hours, Materials, etc.)
-        public string ClaimType { get; set; } = string.Empty;
+        [ForeignKey("LecturerId")]
+        public UserModel Lecturer { get; set; } = null!;
 
-        // Date of claim
-        public DateTime ClaimDate { get; set; } = DateTime.UtcNow;
+        [Required]
+        public string ClaimType { get; set; } = string.Empty; // Changed from Title to ClaimType
 
-        // Claim amount (money, hours, etc.)
-        public decimal Amount { get; set; }
-
-        // Extra details (optional)
         public string Description { get; set; } = string.Empty;
 
-        // Workflow status
-        public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected
+        public DateTime ClaimDate { get; set; } = DateTime.UtcNow; // Changed from DateSubmitted to ClaimDate
 
-        // Path or name of supporting document
-        public string SupportingDocumentPath { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending"; // Changed from Approved (bool) to Status (string)
+
+        public int? ApprovedById { get; set; }
+
+        [ForeignKey("ApprovedById")]
+        public UserModel? ApprovedBy { get; set; }
+
+        public DateTime? DateApproved { get; set; }
     }
 }
