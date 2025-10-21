@@ -45,7 +45,7 @@ namespace ST10441211_PROG6212_POE
             services.AddScoped<HomeController>();
             services.AddScoped<AccountController>();
             services.AddScoped<DashboardController>();
-            services.AddScoped<ClaimsController>();
+            services.AddScoped<ClaimController>();
 
             // Register Views (Console UI)
             services.AddScoped<ConsoleView>();
