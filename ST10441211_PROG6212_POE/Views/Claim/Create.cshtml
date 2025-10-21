@@ -1,0 +1,182 @@
+﻿@model ST10441211_PROG6212_POE.Models.ClaimModel
+
+@{
+    ViewData["Title"] = "Create Claim";
+}
+
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+        background-color: #4b0082;
+    }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
+
+    .form-control, .form-select {
+        background-color: #1a1a1a;
+        border: 1px solid #4b0082;
+        color: #fff;
+    }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #1a1a1a;
+            border-color: #6a0dad;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(106, 13, 173, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #888;
+        }
+
+    .form-label {
+        color: #d8b4f8;
+        font-weight: 500;
+    }
+
+    .btn-purple {
+        background-color: #6a0dad;
+        border-color: #6a0dad;
+        color: #fff;
+    }
+
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+
+    .card {
+        background-color: #1a1a1a;
+        border: 1px solid #4b0082;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        background-color: #4b0082;
+        border-bottom: 1px solid #6a0dad;
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .text-danger {
+        color: #ff6b6b !important;
+    }
+
+    .form-text {
+        color: #888;
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Account/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Claim">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Create New Claim</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label asp-for="ClaimType" class="form-label">Claim Type <span class="text-danger">*</span></label>
+                            <select asp-for="ClaimType" class="form-select" required>
+                                <option value="">-- Select Claim Type --</option>
+                                <option value="Lecture Hours">Lecture Hours</option>
+                                <option value="Tutorial Hours">Tutorial Hours</option>
+                                <option value="Practical Hours">Practical Hours</option>
+                                <option value="Marking">Marking</option>
+                                <option value="Consultation">Consultation</option>
+                                <option value="Invigilation">Invigilation</option>
+                                <option value="Research">Research</option>
+                                <option value="Administration">Administration</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="ClaimType" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea asp-for="Description" class="form-control" rows="6" required
+                                      placeholder="Provide detailed information about your claim (e.g., course name, number of hours, dates, etc.)"></textarea>
+                            <div class="form-text">Please include all relevant details to help process your claim.</div>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="SupportingDocument" class="form-label">Supporting Document</label>
+                            <input type="file" class="form-control" id="SupportingDocument" name="SupportingDocument"
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls">
+                            <div class="form-text">Upload supporting documents (PDF, Word, Excel, or Images). Max size: 5MB</div>
+                        </div>
+
+                        <div class="alert alert-info mb-4">
+                            <strong>Note:</strong> Your claim will be submitted with a "Pending" status and will be reviewed by a coordinator or academic manager.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/Claim/Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-purple">
+                                <i class="bi bi-check-circle"></i> Submit Claim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3" style="background-color: #2a2a2a; border-color: #4b0082;">
+                <div class="card-body">
+                    <h6 class="text-white mb-2">Tips for submitting claims:</h6>
+                    <ul class="text-muted mb-0" style="font-size: 0.9rem;">
+                        <li>Select the appropriate claim type from the dropdown</li>
+                        <li>Provide detailed descriptions including dates and hours worked</li>
+                        <li>Include course codes or module names when applicable</li>
+                        <li>You can edit or delete claims while they are in "Pending" status</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

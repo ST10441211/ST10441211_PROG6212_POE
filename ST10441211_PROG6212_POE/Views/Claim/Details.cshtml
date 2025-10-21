@@ -1,0 +1,274 @@
+﻿@model ST10441211_PROG6212_POE.Models.ClaimModel
+
+@{
+    ViewData["Title"] = "Claim Details";
+}
+
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+        background-color: #4b0082;
+    }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
+
+    .card {
+        background-color: #1a1a1a;
+        border: 1px solid #4b0082;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        background-color: #4b0082;
+        border-bottom: 1px solid #6a0dad;
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .info-row {
+        border-bottom: 1px solid #333;
+        padding: 15px 0;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        color: #d8b4f8;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1rem;
+    }
+
+    .badge-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .badge-approved {
+        background-color: #28a745;
+    }
+
+    .badge-rejected {
+        background-color: #dc3545;
+    }
+
+    .btn-purple {
+        background-color: #6a0dad;
+        border-color: #6a0dad;
+        color: #fff;
+    }
+
+        .btn-purple:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+
+    .action-section {
+        background-color: #2a2a2a;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Account/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Claim">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Claim Details - #@Model.ClaimId</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Claim Information -->
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Claim ID:</div>
+                            <div class="col-md-9 info-value">#@Model.ClaimId</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Claim Type:</div>
+                            <div class="col-md-9 info-value">@Model.ClaimType</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Description:</div>
+                            <div class="col-md-9 info-value">@Model.Description</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Claim Date:</div>
+                            <div class="col-md-9 info-value">@Model.ClaimDate.ToString("dddd, MMMM dd, yyyy 'at' HH:mm")</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Status:</div>
+                            <div class="col-md-9 info-value">
+                                @if (Model.Status == "Pending")
+                                {
+                                    <span class="badge badge-pending">Pending</span>
+                                }
+                                else if (Model.Status == "Approved")
+                                {
+                                    <span class="badge badge-approved">Approved</span>
+                                }
+                                else if (Model.Status == "Rejected")
+                                {
+                                    <span class="badge badge-rejected">Rejected</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.SupportingDocumentPath))
+                    {
+                        <div class="info-row">
+                            <div class="row">
+                                <div class="col-md-3 info-label">Supporting Document:</div>
+                                <div class="col-md-9 info-value">
+                                    <a href="@Model.SupportingDocumentPath" target="_blank" class="btn btn-sm btn-outline-light">
+                                        <i class="bi bi-file-earmark-arrow-down"></i> Download Document
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Lecturer Information -->
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-md-3 info-label">Lecturer:</div>
+                            <div class="col-md-9 info-value">
+                                @if (Model.Lecturer != null)
+                                {
+                                    <text>@Model.Lecturer.FullName</text>
+                                    <br />
+                                    <small class="text-muted">ID: @Model.LecturerId</small>
+                                }
+                                else
+                                {
+                                    <text>Lecturer ID: @Model.LecturerId</text>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval Information (if approved/rejected) -->
+                    @if (Model.Status == "Approved" || Model.Status == "Rejected")
+                    {
+                        <div class="info-row">
+                            <div class="row">
+                                <div class="col-md-3 info-label">Reviewed By:</div>
+                                <div class="col-md-9 info-value">
+                                    @if (Model.ApprovedBy != null)
+                                    {
+                                        <text>@Model.ApprovedBy.FullName</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Approver ID: @Model.ApprovedById</text>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="row">
+                                <div class="col-md-3 info-label">Review Date:</div>
+                                <div class="col-md-9 info-value">
+                                    @if (Model.DateApproved.HasValue)
+                                    {
+                                        @Model.DateApproved.Value.ToString("dddd, MMMM dd, yyyy 'at' HH:mm")
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="action-section">
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                            <a href="/Claim/List" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+
+                            <div class="d-flex gap-2">
+                                @if (Model.Status == "Pending")
+                                {
+                                    <a href="/Claim/Edit/@Model.ClaimId" class="btn btn-warning">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="/Claim/Delete/@Model.ClaimId" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary" disabled>
+                                        Cannot edit @Model.Status.ToLower() claim
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

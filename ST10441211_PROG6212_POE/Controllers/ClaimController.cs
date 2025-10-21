@@ -17,44 +17,120 @@ namespace ST10441211_PROG6212_POE.Controllers
             _session = session;
         }
 
+        // ------------------- INDEX (Landing Page) -------------------
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         // ------------------- CREATE -------------------
         [HttpGet]
         public IActionResult Create()
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(ClaimModel model)
+        public IActionResult Create(ClaimModel model, IFormFile? SupportingDocument)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
+            // Remove validation for properties we'll set manually
+            ModelState.Remove("LecturerId");
+            ModelState.Remove("ClaimDate");
+            ModelState.Remove("Status");
+            ModelState.Remove("Lecturer");
+            ModelState.Remove("SupportingDocumentPath");
 
             if (!ModelState.IsValid)
+            {
+                // Log validation errors for debugging
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                }
                 return View(model);
+            }
 
-            model.LecturerId = _session.GetUserId();
+            // Handle file upload
+            if (SupportingDocument != null && SupportingDocument.Length > 0)
+            {
+                // Validate file size (5MB max)
+                if (SupportingDocument.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("SupportingDocument", "File size cannot exceed 5MB");
+                    return View(model);
+                }
+
+                // Validate file type
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".xlsx", ".xls" };
+                var extension = Path.GetExtension(SupportingDocument.FileName).ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("SupportingDocument", "Invalid file type. Allowed: PDF, Word, Excel, Images");
+                    return View(model);
+                }
+
+                try
+                {
+                    // Create uploads directory if it doesn't exist
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "claims");
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    // Generate unique filename
+                    var uniqueFileName = $"{Guid.NewGuid()}_{SupportingDocument.FileName}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Save file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        SupportingDocument.CopyTo(stream);
+                    }
+
+                    // Store relative path in database
+                    model.SupportingDocumentPath = $"/uploads/claims/{uniqueFileName}";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"File upload error: {ex.Message}");
+                    ModelState.AddModelError("SupportingDocument", "Error uploading file. Please try again.");
+                    return View(model);
+                }
+            }
+
+            // Set default values if user is not logged in
+            if (_session.IsLoggedIn)
+            {
+                model.LecturerId = _session.GetUserId();
+            }
+            else
+            {
+                model.LecturerId = 0; // Default for non-logged in users
+            }
+
             model.ClaimDate = DateTime.UtcNow;
             model.Status = "Pending";
 
-            _context.Claims.Add(model);
-            _context.SaveChanges();
+            try
+            {
+                _context.Claims.Add(model);
+                _context.SaveChanges();
 
-            TempData["SuccessMessage"] = $"Claim #{model.ClaimId} created successfully!";
-            return RedirectToAction("MyClaims");
+                TempData["SuccessMessage"] = $"Claim #{model.ClaimId} created successfully!";
+                return RedirectToAction("List");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database error: {ex.Message}");
+                ModelState.AddModelError("", "Error saving claim. Please try again.");
+                return View(model);
+            }
         }
 
         // ------------------- READ -------------------
-        public IActionResult MyClaims()
+        public IActionResult List()
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             var claims = _context.Claims
-                .Where(c => c.LecturerId == _session.GetUserId())
                 .OrderByDescending(c => c.ClaimDate)
                 .ToList();
 
@@ -63,9 +139,6 @@ namespace ST10441211_PROG6212_POE.Controllers
 
         public IActionResult Details(int id)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             var claim = _context.Claims
                 .Include(c => c.Lecturer)
                 .Include(c => c.ApprovedBy)
@@ -74,10 +147,6 @@ namespace ST10441211_PROG6212_POE.Controllers
             if (claim == null)
                 return NotFound();
 
-            // Permission check
-            if (claim.LecturerId != _session.GetUserId() && _session.GetUserRole() == Role.Lecturer)
-                return Forbid();
-
             return View(claim);
         }
 
@@ -85,14 +154,11 @@ namespace ST10441211_PROG6212_POE.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             var claim = _context.Claims
-                .FirstOrDefault(c => c.ClaimId == id && c.LecturerId == _session.GetUserId());
+                .FirstOrDefault(c => c.ClaimId == id);
 
             if (claim == null || claim.Status != "Pending")
-                return Forbid();
+                return NotFound();
 
             return View(claim);
         }
@@ -100,14 +166,14 @@ namespace ST10441211_PROG6212_POE.Controllers
         [HttpPost]
         public IActionResult Edit(ClaimModel model)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
+            if (!ModelState.IsValid)
+                return View(model);
 
             var claim = _context.Claims
-                .FirstOrDefault(c => c.ClaimId == model.ClaimId && c.LecturerId == _session.GetUserId());
+                .FirstOrDefault(c => c.ClaimId == model.ClaimId);
 
             if (claim == null || claim.Status != "Pending")
-                return Forbid();
+                return NotFound();
 
             claim.ClaimType = model.ClaimType;
             claim.Description = model.Description;
@@ -115,21 +181,18 @@ namespace ST10441211_PROG6212_POE.Controllers
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = $"Claim #{claim.ClaimId} updated successfully!";
-            return RedirectToAction("MyClaims");
+            return RedirectToAction("List");
         }
 
         // ------------------- DELETE -------------------
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             var claim = _context.Claims
-                .FirstOrDefault(c => c.ClaimId == id && c.LecturerId == _session.GetUserId());
+                .FirstOrDefault(c => c.ClaimId == id);
 
             if (claim == null || claim.Status != "Pending")
-                return Forbid();
+                return NotFound();
 
             return View(claim);
         }
@@ -137,20 +200,17 @@ namespace ST10441211_PROG6212_POE.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
-            if (!_session.IsLoggedIn)
-                return RedirectToAction("Login", "Account");
-
             var claim = _context.Claims
-                .FirstOrDefault(c => c.ClaimId == id && c.LecturerId == _session.GetUserId());
+                .FirstOrDefault(c => c.ClaimId == id);
 
             if (claim == null || claim.Status != "Pending")
-                return Forbid();
+                return NotFound();
 
             _context.Claims.Remove(claim);
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = $"Claim #{claim.ClaimId} deleted successfully!";
-            return RedirectToAction("MyClaims");
+            return RedirectToAction("List");
         }
 
         // ------------------- REVIEW (Coordinator / Manager) -------------------

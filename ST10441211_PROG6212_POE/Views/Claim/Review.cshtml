@@ -1,0 +1,161 @@
+﻿@model ST10441211_PROG6212_POE.Models.ClaimModel
+
+@{
+    ViewData["Title"] = "Delete Claim";
+}
+
+<style>
+    body {
+        background-color: #0a0a0a;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+        background-color: #4b0082;
+    }
+
+        .navbar .nav-link {
+            color: #fff !important;
+            margin-right: 1rem;
+            transition: color 0.3s;
+        }
+
+            .navbar .nav-link:hover {
+                color: #d8b4f8 !important;
+            }
+
+    .card {
+        background-color: #1a1a1a;
+        border: 1px solid #dc3545;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        background-color: #dc3545;
+        border-bottom: 1px solid #c82333;
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+    .info-row {
+        border-bottom: 1px solid #333;
+        padding: 12px 0;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        color: #d8b4f8;
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: #fff;
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/">ST10441211_PROG6212_POE</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/Home/Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/Account/Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/Claim">Claims</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/AcademicManager">Academic Manager</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ProgrammeCoordinator">Programme Coordinator</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Claim
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Warning!</strong> Are you sure you want to delete this claim? This action cannot be undone.
+                    </div>
+
+                    <h5 class="mb-4">Claim Details:</h5>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-4 info-label">Claim ID:</div>
+                            <div class="col-8 info-value">#@Model.ClaimId</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-4 info-label">Claim Type:</div>
+                            <div class="col-8 info-value">@Model.ClaimType</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-4 info-label">Description:</div>
+                            <div class="col-8 info-value">@Model.Description</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-4 info-label">Claim Date:</div>
+                            <div class="col-8 info-value">@Model.ClaimDate.ToString("yyyy-MM-dd HH:mm")</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="row">
+                            <div class="col-4 info-label">Status:</div>
+                            <div class="col-8 info-value">
+                                <span class="badge bg-warning text-dark">@Model.Status</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="ClaimId" />
+                        <div class="d-flex justify-content-between">
+                            <a href="/Claim/List" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete Claim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -73,10 +73,10 @@
                     <a class="nav-link" href="/Home/Index">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/Login">Login</a>
+                    <a class="nav-link" href="/Account/Login">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/Claims">Claims</a>
+                    <a class="nav-link active" href="/Claim">Claims</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/AcademicManager">Academic Manager</a>
@@ -93,36 +93,26 @@
 <div class="container mt-4">
     <div class="jumbotron">
         <h1 class="display-4">Claims</h1>
-        <p class="lead">Submit and manage your insurance claims here.</p>
+        <p class="lead">Submit and manage your payment claims here.</p>
     </div>
 
     <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card text-center h-100 border-0">
                 <div class="card-body">
                     <h5 class="card-title text-dark">New Claim</h5>
-                    <p class="card-text text-black">Submit a new insurance claim with supporting documents.</p>
-                    <a href="/Claims/Create" class="btn btn-purple">Create Claim</a>
+                    <p class="card-text text-black">Submit a new payment claim for your lecturing hours.</p>
+                    <a href="/Claim/Create" class="btn btn-purple">Create Claim</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card text-center h-100 border-0">
                 <div class="card-body">
                     <h5 class="card-title text-dark">View Claims</h5>
                     <p class="card-text text-black">Track and manage your previously submitted claims.</p>
-                    <a href="/Claims/List" class="btn btn-purple">View Claims</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-center h-100 border-0">
-                <div class="card-body">
-                    <h5 class="card-title text-dark">Support</h5>
-                    <p class="card-text text-black">Need help? Contact support for claim-related queries.</p>
-                    <a href="/Claims/Support" class="btn btn-purple">Get Support</a>
+                    <a href="/Claim/List" class="btn btn-purple">View Claims</a>
                 </div>
             </div>
         </div>
