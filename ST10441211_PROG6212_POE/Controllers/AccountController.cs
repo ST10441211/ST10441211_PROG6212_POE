@@ -1,138 +1,102 @@
-﻿using ST10441211_PROG6212_POE.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using ST10441211_PROG6212_POE.Data;
 using ST10441211_PROG6212_POE.Models;
-using ST10441211_PROG6212_POE.Views;
-using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace ST10441211_PROG6212_POE.Controllers
 {
-    public class AccountController
+    public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly SessionManager _session;
-        private readonly ConsoleView _view;
 
-        public AccountController(ApplicationDbContext context, SessionManager session, ConsoleView view)
+        public AccountController(ApplicationDbContext context, SessionManager session)
         {
             _context = context;
             _session = session;
-            _view = view;
         }
 
-        public bool Login()
+        // ------------------- LOGIN -------------------
+        [HttpGet]
+        public IActionResult Login()
         {
-            _view.ShowHeader("Login");
+            return View();
+        }
 
-            string email = _view.GetInput("Email");
-            string password = _view.GetPassword("Password");
+        [HttpPost]
+        public IActionResult Login(string email, string password)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            {
+                ViewBag.ErrorMessage = "Please enter both email and password.";
+                return View();
+            }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
-            if (user == null || !VerifyPassword(password, user.PasswordHash))
+            if (user == null)
             {
-                _view.ShowError("Invalid email or password.");
-                _view.WaitForKey();
-                return false;
+                ViewBag.ErrorMessage = "No user found with that email.";
+                return View();
             }
 
+            // For now, we’ll skip password hashing logic
+            if (user.PasswordHash != password)
+            {
+                ViewBag.ErrorMessage = "Incorrect password.";
+                return View();
+            }
+
+            // Start session using the corrected SessionManager
             _session.Login(user);
-            _view.ShowSuccess($"Welcome back, {user.FullName}!");
-            System.Threading.Thread.Sleep(1000);
-            return true;
+
+            TempData["SuccessMessage"] = "Login successful!";
+            return RedirectToAction("Index", "Dashboard");
         }
 
-        public bool Register()
+        // ------------------- REGISTER -------------------
+        [HttpGet]
+        public IActionResult Register()
         {
-            _view.ShowHeader("Register New Account");
+            return View(new RegisterViewModel());
+        }
 
-            string fullName = _view.GetInput("Full Name");
-            string email = _view.GetInput("Email");
-            string password = _view.GetPassword("Password");
+        [HttpPost]
+        public IActionResult Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
 
-            // Validate email
-            if (!IsValidEmail(email))
+            // Check if email exists
+            if (_context.Users.Any(u => u.Email == model.Email))
             {
-                _view.ShowError("Invalid email format.");
-                _view.WaitForKey();
-                return false;
-            }
-
-            // Check if email already exists
-            if (_context.Users.Any(u => u.Email == email))
-            {
-                _view.ShowError("Email already registered.");
-                _view.WaitForKey();
-                return false;
-            }
-
-            // Select role
-            Console.WriteLine("\nSelect Role:");
-            Console.WriteLine("  [1] Lecturer");
-            Console.WriteLine("  [2] Programme Coordinator");
-            Console.WriteLine("  [3] Academic Manager");
-            Console.Write("Choice: ");
-
-            Role role = Role.Lecturer;
-            if (int.TryParse(Console.ReadLine(), out int roleChoice))
-            {
-                role = roleChoice switch
-                {
-                    2 => Role.ProgrammeCoordinator,
-                    3 => Role.AcademicManager,
-                    _ => Role.Lecturer
-                };
+                ViewBag.ErrorMessage = "Email already registered.";
+                return View(model);
             }
 
             var user = new UserModel
             {
-                FullName = fullName,
-                Email = email,
-                PasswordHash = HashPassword(password),
-                Role = role
+                FullName = model.FullName,
+                Email = model.Email,
+                PasswordHash = model.Password, // ⚠ In real apps, hash this
+                Role = model.Role
             };
 
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            _view.ShowSuccess("Account created successfully!");
-            _view.WaitForKey();
-            return true;
+            TempData["SuccessMessage"] = "Registration successful! Please log in.";
+            return RedirectToAction("Login");
         }
 
-        public void Logout()
+        // ------------------- LOGOUT -------------------
+        public IActionResult Logout()
         {
+            // End session using the corrected SessionManager
             _session.Logout();
-            _view.ShowSuccess("Logged out successfully.");
-            System.Threading.Thread.Sleep(1000);
-        }
 
-        private string HashPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(bytes);
-            }
-        }
-
-        private bool VerifyPassword(string password, string hash)
-        {
-            return HashPassword(password) == hash;
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
+            TempData["SuccessMessage"] = "You have been logged out.";
+            return RedirectToAction("Login");
         }
     }
 }

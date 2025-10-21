@@ -1,59 +1,67 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ST10441211_PROG6212_POE;
 using ST10441211_PROG6212_POE.Data;
-using ST10441211_PROG6212_POE.Controllers;
-using ST10441211_PROG6212_POE.Views;
 
-namespace ST10441211_PROG6212_POE
+var builder = WebApplication.CreateBuilder(args);
+
+// ----------------- Connection String -----------------
+string connectionString = "Server=(localdb)\\mssqllocaldb;Database=ClaimsManagementDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+
+// ----------------- Services -----------------
+builder.Services.AddControllersWithViews();
+
+// Register DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Enable session and distributed cache
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.Title = "Lecturer Claims Management System";
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-            // Setup Dependency Injection
-            var serviceProvider = ConfigureServices();
+// Register IHttpContextAccessor (needed for SessionManager)
+builder.Services.AddHttpContextAccessor();
 
-            // Ensure database is created
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                context.Database.EnsureCreated();
-            }
+// Register SessionManager as singleton
+builder.Services.AddSingleton<SessionManager>();
 
-            // Get the application controller
-            var appController = serviceProvider.GetRequiredService<ApplicationController>();
+// ----------------- Build App -----------------
+var app = builder.Build();
 
-            // Run the application
-            appController.Run();
-        }
-
-        private static ServiceProvider ConfigureServices()
-        {
-            var services = new ServiceCollection();
-
-            // Connection string - UPDATE THIS with your actual connection string
-            string connectionString = "Server=(localdb)\\mssqllocaldb;Database=ClaimsManagementDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-
-            // Add DbContext
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
-
-            // Register Controllers
-            services.AddScoped<ApplicationController>();
-            services.AddScoped<HomeController>();
-            services.AddScoped<AccountController>();
-            services.AddScoped<DashboardController>();
-            services.AddScoped<ClaimController>();
-
-            // Register Views (Console UI)
-            services.AddScoped<ConsoleView>();
-
-            // Register Session Manager
-            services.AddSingleton<SessionManager>();
-
-            return services.BuildServiceProvider();
-        }
-    }
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
 }
+
+// ----------------- Middleware Pipeline -----------------
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// Enable session
+app.UseSession();
+
+app.UseAuthorization();
+
+// ----------------- Default Route -----------------
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
