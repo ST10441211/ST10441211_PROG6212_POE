@@ -1,145 +1,138 @@
-﻿using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ST10441211_PROG6212_POE.Data;
+﻿using ST10441211_PROG6212_POE.Data;
 using ST10441211_PROG6212_POE.Models;
-using ST10441211_PROG6212_POE.Services;
+using ST10441211_PROG6212_POE.Views;
+using System;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ST10441211_PROG6212_POE.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController
     {
-        private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _context;
+        private readonly SessionManager _session;
+        private readonly ConsoleView _view;
 
-        public AccountController(ApplicationDbContext db)
+        public AccountController(ApplicationDbContext context, SessionManager session, ConsoleView view)
         {
-            _db = db;
+            _context = context;
+            _session = session;
+            _view = view;
         }
 
-        [HttpGet]
-        public IActionResult Register() => View();
-
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel vm)
+        public bool Login()
         {
-            if (!ModelState.IsValid) return View(vm);
+            _view.ShowHeader("Login");
 
-            var existing = await _db.Users.FirstOrDefaultAsync(u => u.Email == vm.Email);
-            if (existing != null)
+            string email = _view.GetInput("Email");
+            string password = _view.GetPassword("Password");
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+
+            if (user == null || !VerifyPassword(password, user.PasswordHash))
             {
-                ModelState.AddModelError(string.Empty, "Email already registered");
-                return View(vm);
+                _view.ShowError("Invalid email or password.");
+                _view.WaitForKey();
+                return false;
             }
 
-            // Create a new user model. We attempt to set PasswordHash if property exists,
-            // otherwise set Password (for plaintext storage — not recommended for production).
+            _session.Login(user);
+            _view.ShowSuccess($"Welcome back, {user.FullName}!");
+            System.Threading.Thread.Sleep(1000);
+            return true;
+        }
+
+        public bool Register()
+        {
+            _view.ShowHeader("Register New Account");
+
+            string fullName = _view.GetInput("Full Name");
+            string email = _view.GetInput("Email");
+            string password = _view.GetPassword("Password");
+
+            // Validate email
+            if (!IsValidEmail(email))
+            {
+                _view.ShowError("Invalid email format.");
+                _view.WaitForKey();
+                return false;
+            }
+
+            // Check if email already exists
+            if (_context.Users.Any(u => u.Email == email))
+            {
+                _view.ShowError("Email already registered.");
+                _view.WaitForKey();
+                return false;
+            }
+
+            // Select role
+            Console.WriteLine("\nSelect Role:");
+            Console.WriteLine("  [1] Lecturer");
+            Console.WriteLine("  [2] Programme Coordinator");
+            Console.WriteLine("  [3] Academic Manager");
+            Console.Write("Choice: ");
+
+            Role role = Role.Lecturer;
+            if (int.TryParse(Console.ReadLine(), out int roleChoice))
+            {
+                role = roleChoice switch
+                {
+                    2 => Role.ProgrammeCoordinator,
+                    3 => Role.AcademicManager,
+                    _ => Role.Lecturer
+                };
+            }
+
             var user = new UserModel
             {
-                FullName = vm.FullName,
-                Email = vm.Email,
-                Role = vm.Role
+                FullName = fullName,
+                Email = email,
+                PasswordHash = HashPassword(password),
+                Role = role
             };
 
-            // If your UserModel has a PasswordHash property, set that. Otherwise set Password.
-            var userType = typeof(UserModel);
-            var hashProp = userType.GetProperty("PasswordHash", BindingFlags.Public | BindingFlags.Instance);
-            var plainProp = userType.GetProperty("Password", BindingFlags.Public | BindingFlags.Instance);
+            _context.Users.Add(user);
+            _context.SaveChanges();
 
-            if (hashProp != null && hashProp.CanWrite)
-            {
-                // set hashed password
-                var hashed = PasswordHasher.Hash(vm.Password);
-                hashProp.SetValue(user, hashed);
-            }
-            else if (plainProp != null && plainProp.CanWrite)
-            {
-                // fallback: store plaintext password (only for small school projects)
-                plainProp.SetValue(user, vm.Password);
-            }
-            else
-            {
-                // No writable password property found — fail early
-                ModelState.AddModelError(string.Empty, "User model does not have writable Password or PasswordHash property.");
-                return View(vm);
-            }
-
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-
-            // auto-login: store identifying info in session
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserRole", user.Role.ToString());
-            HttpContext.Session.SetString("UserName", user.FullName);
-
-            return RedirectToAction("Index", "Dashboard");
+            _view.ShowSuccess("Account created successfully!");
+            _view.WaitForKey();
+            return true;
         }
 
-        [HttpGet]
-        public IActionResult Login() => View();
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginModel vm)
+        public void Logout()
         {
-            if (!ModelState.IsValid) return View(vm);
-
-            // Find user by email
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == vm.Email);
-            if (user == null)
-            {
-                ModelState.AddModelError(string.Empty, "Invalid email or password.");
-                return View(vm);
-            }
-
-            // Use reflection to determine whether stored password is hashed or plaintext
-            var userType = user.GetType();
-            var hashProp = userType.GetProperty("PasswordHash", BindingFlags.Public | BindingFlags.Instance);
-            var plainProp = userType.GetProperty("Password", BindingFlags.Public | BindingFlags.Instance);
-
-            bool passwordMatches = false;
-
-            if (hashProp != null)
-            {
-                var storedHash = hashProp.GetValue(user) as string ?? string.Empty;
-                if (!string.IsNullOrEmpty(storedHash) && PasswordHasher.Verify(vm.Password, storedHash))
-                {
-                    passwordMatches = true;
-                }
-            }
-            else if (plainProp != null)
-            {
-                var storedPlain = plainProp.GetValue(user) as string ?? string.Empty;
-                if (storedPlain == vm.Password)
-                {
-                    passwordMatches = true;
-                }
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "User model lacks Password or PasswordHash property.");
-                return View(vm);
-            }
-
-            if (!passwordMatches)
-            {
-                ModelState.AddModelError(string.Empty, "Invalid email or password.");
-                return View(vm);
-            }
-
-            // Success -> set session and redirect
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserRole", user.Role.ToString());
-            HttpContext.Session.SetString("UserName", user.FullName);
-
-            return RedirectToAction("Index", "Dashboard");
+            _session.Logout();
+            _view.ShowSuccess("Logged out successfully.");
+            System.Threading.Thread.Sleep(1000);
         }
 
-        [HttpPost]
-        public IActionResult Logout()
+        private string HashPassword(string password)
         {
-            HttpContext.Session.Clear();
-            return RedirectToAction("Login");
+            using (var sha256 = SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
+        }
+
+        private bool VerifyPassword(string password, string hash)
+        {
+            return HashPassword(password) == hash;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

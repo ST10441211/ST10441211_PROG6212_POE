@@ -1,42 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using ST10441211_PROG6212_POE.Data;
+using ST10441211_PROG6212_POE.Controllers;
+using ST10441211_PROG6212_POE.Views;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add EF Core
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Sessions
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
+namespace ST10441211_PROG6212_POE
 {
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-    options.IdleTimeout = TimeSpan.FromHours(8);
-});
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Title = "Lecturer Claims Management System";
 
-builder.Services.AddControllersWithViews();
+            // Setup Dependency Injection
+            var serviceProvider = ConfigureServices();
 
-var app = builder.Build();
+            // Ensure database is created
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                context.Database.EnsureCreated();
+            }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+            // Get the application controller
+            var appController = serviceProvider.GetRequiredService<ApplicationController>();
+
+            // Run the application
+            appController.Run();
+        }
+
+        private static ServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+
+            // Connection string - UPDATE THIS with your actual connection string
+            string connectionString = "Server=(localdb)\\mssqllocaldb;Database=ClaimsManagementDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+
+            // Add DbContext
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            // Register Controllers
+            services.AddScoped<ApplicationController>();
+            services.AddScoped<HomeController>();
+            services.AddScoped<AccountController>();
+            services.AddScoped<DashboardController>();
+            services.AddScoped<ClaimsController>();
+
+            // Register Views (Console UI)
+            services.AddScoped<ConsoleView>();
+
+            // Register Session Manager
+            services.AddSingleton<SessionManager>();
+
+            return services.BuildServiceProvider();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseSession();
-
-app.UseAuthorization();
-
-app.MapControllerRoute(
-name: "default",
-pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();

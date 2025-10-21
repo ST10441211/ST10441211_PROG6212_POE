@@ -1,40 +1,49 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ST10441211_PROG6212_POE.Data;
+﻿using ST10441211_PROG6212_POE.Data;
 using ST10441211_PROG6212_POE.Models;
+using ST10441211_PROG6212_POE.Views;
 using System.Linq;
 
 namespace ST10441211_PROG6212_POE.Controllers
 {
-    public class DashboardController : Controller
+    public class DashboardController
     {
         private readonly ApplicationDbContext _context;
+        private readonly SessionManager _session;
+        private readonly ConsoleView _view;
 
-        public DashboardController(ApplicationDbContext context)
+        public DashboardController(ApplicationDbContext context, SessionManager session, ConsoleView view)
         {
             _context = context;
+            _session = session;
+            _view = view;
         }
 
-        public IActionResult Index()
+        public void ShowDashboard()
         {
-            var email = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(email))
-                return RedirectToAction("Login", "Account");
+            if (!_session.IsLoggedIn)
+            {
+                _view.ShowError("You must be logged in to view the dashboard.");
+                _view.WaitForKey();
+                return;
+            }
 
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = _context.Users.FirstOrDefault(u => u.Id == _session.GetUserId());
             if (user == null)
-                return RedirectToAction("Login", "Account");
+            {
+                _view.ShowError("User not found.");
+                _view.WaitForKey();
+                return;
+            }
 
             var model = new DashboardViewModel
             {
                 CurrentUserName = user.FullName,
                 Role = user.Role,
-                // Fixed: Use LecturerId instead of Email (ClaimModel doesn't have Email property)
                 MyClaims = _context.Claims.Where(c => c.LecturerId == user.Id).ToList(),
-                // Fixed: Compare Role enum to Role enum, not string
                 AllClaims = user.Role != Role.Lecturer ? _context.Claims.ToList() : null
             };
 
-            return View(model);
+            _view.ShowDashboard(model);
         }
     }
 }
